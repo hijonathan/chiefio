@@ -1,23 +1,17 @@
 import random
 import urllib2
-from datetime import date
 from urlparse import urlparse
 
 from BeautifulSoup import BeautifulSoup
 
-from django.core.cache import cache
 from django.contrib.auth.forms import UserCreationForm
 
 from django.views.generic import View
 
 from django.shortcuts import render_to_response
-from django.views.generic.simple import direct_to_template
 from django.http import HttpResponseRedirect
-from django.utils import simplejson
 from django.template import RequestContext
 
-from designsnapper.handlers import Client
-from designsnapper.handlers import Page
 
 def client(func):
     def add_client(self, *args):
@@ -27,8 +21,9 @@ def client(func):
         #self.snapper = Client(self.current_user)
 
         return func(self, *args)
-        
+
     return add_client
+
 
 class DebugView(View):
     """Simple page you can hit when debugging"""
@@ -108,11 +103,11 @@ class DemoAddPageView(View):
 
 
 class FramedContentView(View):
-    
+
     def get(self, request):
 
         if str(request.GET.get('url')) != 'None':
-            
+
             url = urlparse(request.GET.get('url'))
 
             if url.scheme == '':
@@ -123,7 +118,7 @@ class FramedContentView(View):
             clean_url = "%s://%s%s" % (scheme, url.netloc, url.path)
 
             soup = BeautifulSoup(urllib2.urlopen(clean_url))
-            soup.html.head.insert(0,'<base href="%s">' % clean_url)
+            soup.html.head.insert(0, '<base href="%s">' % clean_url)
             frame_html = str(soup)
 
             return render_to_response('app/example-framed-content.html', {'frame_html': frame_html})
@@ -143,8 +138,9 @@ def create_new_user(request):
             return HttpResponseRedirect('/designsnapper/')
     else:
         form = UserCreationForm()
-    return direct_to_template(request, 'app/user_create_form.html',
+    return render_to_response(request, 'app/user_create_form.html',
         {'form': form})
+
 
 @client
 def add_pages(request):
@@ -152,60 +148,62 @@ def add_pages(request):
 
     pass
 
+
 @client
 def remove_pages(request):
     """Accept a dictionary of URLs to stop monitoring"""
 
     pass
 
-# Mock data
 
+# Mock data
 def get_all_pages(userId):
     """Get a list of pages being monitored by this account."""
 
     # TODO: Query the db for the user-specific data
-    
+
     pages = [
         {
             'url': 'http://www.apple.com',
             'guid': 'apple',
-            'status': random.randint(0,1),
+            'status': random.randint(0, 1),
             'screenshot': get_recent_screenshot('apple'),
-            'screenshots': random.randint(1,3000)
+            'screenshots': random.randint(1, 3000)
         }, {
             'url': 'http://www.zendesk.com/',
             'guid': 'zendesk',
-            'status': random.randint(0,1),
+            'status': random.randint(0, 1),
             'screenshot': get_recent_screenshot('zendesk'),
-            'screenshots': random.randint(1,3000)
+            'screenshots': random.randint(1, 3000)
         }, {
             'url': 'http://www.turningart.com/',
             'guid': 'turningart',
-            'status': random.randint(0,1),
+            'status': random.randint(0, 1),
             'screenshot': get_recent_screenshot('turningart'),
-            'screenshots': random.randint(1,3000)
+            'screenshots': random.randint(1, 3000)
         }, {
             'url': 'http://www.wistia.com/',
             'guid': 'wistia',
-            'status': random.randint(0,1),
+            'status': random.randint(0, 1),
             'screenshot': get_recent_screenshot('wistia'),
-            'screenshots': random.randint(1,3000)
+            'screenshots': random.randint(1, 3000)
         }
     ]
-    
+
     return pages
+
 
 def get_page_versions(guid):
     """Returns a dictionary of version objects for the given page."""
 
     page = {}
     version = {}
-    
+
     # TODO: Get actual data from the db
 
     url = urlparse('http://www.%s.com' % guid)
     clean_url = "%s%s" % (url.netloc, url.path)
-    
+
     page['url'] = 'http://www.%s.com' % guid
     page['name'] = clean_url
     page['status'] = 200
@@ -217,21 +215,22 @@ def get_page_versions(guid):
         version['guid'] = '0001'
         version['screenshot'] = {}
         version['screenshot']['path'] = '/static/screenshots/%s.png' % guid
-        
+
         page['versions'].append(version)
-    
+
     return page
+
 
 def get_recent_screenshot(guid):
     """Get the most current screenshot we have on file."""
 
     # TODO: Query the db for the most-recent screenshot
-    
+
     response = {
         'status': 200,
         'screenshot': {
             'path': '/static/screenshots/%s.png' % guid
         }
     }
-    
+
     return response

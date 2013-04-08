@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.conf.urls.defaults import *
 from django.contrib.auth.forms import AuthenticationForm
-from django.views.generic.simple import direct_to_template
 
 import designsnapper.views as views
 
@@ -19,9 +19,14 @@ urlpatterns = patterns('',
     (r'^accounts/create/$', 'designsnapper.views.create_new_user'),
     (r'^accounts/login/$', 'django.contrib.auth.views.login',
         {'authentication_form': AuthenticationForm,
-        'template_name': 'app/login.html',}),
+        'template_name': 'app/login.html'}),
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout',
-        {'next_page': '/designsnapper/',}),
+        {'next_page': '/designsnapper/'}),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    (r'^admin/', include(admin.site.urls)),
+    (r'^admin/', include(admin.site.urls))
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('django.contrib.staticfiles.views',
+        url(r'^static/(?P<path>.*)$', 'serve'),
+    )

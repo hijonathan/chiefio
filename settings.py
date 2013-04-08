@@ -13,7 +13,7 @@ if DJANGO_CONF != 'default':
 ## Import local settings
 
 try:
-    from local_settings import *
+    from conf.settings.local_settings import *
 except ImportError:
     import sys, traceback
     sys.stderr.write("Warning: Can't find the file 'local_settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file local_settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
