@@ -2,7 +2,7 @@ import random
 import urllib2
 from urlparse import urlparse
 
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, Tag
 
 from django.contrib.auth.forms import UserCreationForm
 
@@ -118,7 +118,8 @@ class FramedContentView(View):
             clean_url = "%s://%s%s" % (scheme, url.netloc, url.path)
 
             soup = BeautifulSoup(urllib2.urlopen(clean_url))
-            soup.html.head.insert(0, '<base href="%s">' % clean_url)
+            base = Tag(soup, 'base', [('href', clean_url)])
+            soup.html.head.insert(0, base)
             frame_html = str(soup)
 
             return render_to_response('app/example-framed-content.html', {'frame_html': frame_html})
